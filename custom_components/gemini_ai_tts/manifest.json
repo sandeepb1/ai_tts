@@ -10,8 +10,7 @@
   "issue_tracker": "https://github.com/your-username/gemini-ai-tts/issues",
   "loggers": ["custom_components.gemini_ai_tts"],
   "requirements": [
-    "google-genai>=0.7.0",
-    "google-generativeai>=0.8.0",
+    "google-genai>=1.0.0",
     "google-cloud-speech>=2.21.0",
     "aiohttp>=3.8.0",
     "pydub>=0.25.1"

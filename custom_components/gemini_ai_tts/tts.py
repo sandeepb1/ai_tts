@@ -7,8 +7,7 @@ import logging
 import wave
 from typing import Any
 
-import google.generativeai as genai
-from google import genai as genai_client
+from google import genai
 from google.genai import types
 from homeassistant.components.tts import ATTR_VOICE, CONF_LANG, TextToSpeechEntity
 from homeassistant.config_entries import ConfigEntry
@@ -68,7 +67,7 @@ class GeminiTTSEntity(TextToSpeechEntity):
         self._options = options
         
         # Initialize the Gemini client for TTS
-        self._client = genai_client.Client(api_key=api_key)
+        self._client = genai.Client(api_key=api_key)
         
         self._attr_name = "Gemini AI TTS"
         self._attr_unique_id = f"{DOMAIN}_tts"

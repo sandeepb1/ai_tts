@@ -5,7 +5,8 @@ import asyncio
 import logging
 from typing import Any
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from homeassistant.components.conversation import (
     ATTR_AGENT_ID,
     ConversationEntity,
@@ -56,12 +57,11 @@ class GeminiConversationEntity(ConversationEntity):
         self._api_key = api_key
         self._options = options
         
-        # Configure the client
-        genai.configure(api_key=api_key)
+        # Create the client using the new SDK
+        self._client = genai.Client(api_key=api_key)
         
         # Get model from options or use default
-        model_name = options.get("conversation_model", DEFAULT_MODEL_CONVERSATION)
-        self._model = genai.GenerativeModel(model_name)
+        self._model_name = options.get("conversation_model", DEFAULT_MODEL_CONVERSATION)
         
         self._attr_name = "Gemini AI Conversation"
         self._attr_unique_id = f"{DOMAIN}_conversation"
@@ -179,18 +179,19 @@ class GeminiConversationEntity(ConversationEntity):
                 # Truncate older conversation history
                 prompt = system_message + "\n" + f"User: {user_message}"
             
-            # Create generation config
-            generation_config = genai.types.GenerationConfig(
+            # Create generation config using the new SDK
+            config = types.GenerateContentConfig(
                 max_output_tokens=max_tokens,
                 temperature=temperature,
             )
             
-            # Generate response using the model
+            # Generate response using the new client
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self._model.generate_content(
-                    prompt,
-                    generation_config=generation_config,
+                lambda: self._client.models.generate_content(
+                    model=self._model_name,
+                    contents=prompt,
+                    config=config,
                 ),
             )
             
