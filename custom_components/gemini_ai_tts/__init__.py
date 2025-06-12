@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [
     Platform.TTS,
-    Platform.STT, 
+    Platform.STT,
     Platform.CONVERSATION,
 ]
 

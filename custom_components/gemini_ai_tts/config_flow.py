@@ -23,17 +23,25 @@ from .const import (
     CONF_LANGUAGE,
     CONF_STREAMING,
     CONF_MULTI_SPEAKER,
+    CONF_STT_PROJECT_ID,
+    CONF_STT_CREDENTIALS_JSON,
+    CONF_STT_LANGUAGE,
+    CONF_STT_MODEL,
     DEFAULT_MODEL_TTS,
     DEFAULT_VOICE,
     DEFAULT_STYLE,
     DEFAULT_LANGUAGE,
     DEFAULT_STREAMING,
+    DEFAULT_STT_LANGUAGE,
+    DEFAULT_STT_MODEL,
     MODELS,
     VOICES,
     SPEECH_STYLES,
     EMOTIONS,
     PACE_OPTIONS,
     SUPPORTED_LANGUAGES,
+    STT_SUPPORTED_LANGUAGES,
+    STT_MODELS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -42,6 +50,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_API_KEY): str,
         vol.Optional(CONF_NAME, default="Gemini AI TTS"): str,
+        vol.Optional(CONF_STT_PROJECT_ID): str,
+        vol.Optional(CONF_STT_CREDENTIALS_JSON): str,
     }
 )
 
@@ -183,6 +193,28 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_MULTI_SPEAKER,
                     default=self.config_entry.options.get(CONF_MULTI_SPEAKER, False),
                 ): selector.BooleanSelector(),
+                vol.Optional(
+                    CONF_STT_LANGUAGE,
+                    default=self.config_entry.options.get(CONF_STT_LANGUAGE, DEFAULT_STT_LANGUAGE),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=k, label=v) 
+                            for k, v in STT_SUPPORTED_LANGUAGES.items()
+                        ]
+                    )
+                ),
+                vol.Optional(
+                    CONF_STT_MODEL,
+                    default=self.config_entry.options.get(CONF_STT_MODEL, DEFAULT_STT_MODEL),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=k, label=v) 
+                            for k, v in STT_MODELS.items()
+                        ]
+                    )
+                ),
             }
         )
 

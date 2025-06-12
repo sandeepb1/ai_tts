@@ -5,13 +5,16 @@ A comprehensive Home Assistant integration for Google Gemini Text-to-Speech (TTS
 ## Features
 
 - **Text-to-Speech (TTS)** using Gemini 2.5 Flash Preview TTS
-- **Speech-to-Text (STT)** capabilities 
+- **Speech-to-Text (STT)** using Google Cloud Speech-to-Text API
 - **Conversation Agent** using Gemini 2.5 Pro Preview
 - **30+ Voice Options** with different tones and styles
 - **Multi-speaker support** for conversations
 - **Streaming audio** for real-time responses
 - **Configurable speech parameters** (tone, emotion, pace, accent)
 - **Home Assistant native integration** with configuration UI
+- **60+ STT languages** with advanced recognition models
+
+> **Note**: STT functionality requires Google Cloud Speech-to-Text API credentials. This provides professional-grade speech recognition with high accuracy and extensive language support.
 
 ## Supported Models
 
@@ -47,6 +50,19 @@ A comprehensive Home Assistant integration for Google Gemini Text-to-Speech (TTS
 
 - **API Key**: Your Google AI API key (get one at https://ai.google.dev/)
 - **Model**: Choose between available Gemini models
+
+### STT Configuration (Optional)
+
+For Speech-to-Text functionality, you'll also need:
+- **Google Cloud Project ID**: Your Google Cloud project ID
+- **Service Account Credentials**: JSON credentials for Google Cloud Speech-to-Text API
+
+To set up STT:
+1. Create a Google Cloud project at https://console.cloud.google.com/
+2. Enable the Speech-to-Text API
+3. Create a service account with Speech-to-Text permissions
+4. Download the JSON credentials file
+5. Copy the JSON content into the integration configuration
 
 ### Optional Settings
 

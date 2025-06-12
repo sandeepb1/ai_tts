@@ -16,10 +16,12 @@ I've successfully created a comprehensive **Gemini AI TTS/STT integration** for 
 - **24 Language Support** with auto-detection
 
 ### 🗣️ Speech-to-Text (STT)
-- Real-time audio transcription
-- Multiple audio format support (WAV, MP3, FLAC)
-- Configurable sample rates and quality settings
-- 24 language support
+- **Google Cloud Speech-to-Text** integration
+- **60+ languages** with high accuracy recognition  
+- **Multiple recognition models** (command, long-form, phone, video)
+- **Real-time transcription** with low latency
+- **Automatic punctuation** and enhanced models
+- **Multiple audio formats** (WAV, OGG, PCM, OPUS)
 
 ### 🤖 Conversation Agent
 - **Gemini 2.5 Pro** powered AI assistant

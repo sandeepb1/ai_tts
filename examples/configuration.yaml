@@ -5,7 +5,15 @@
 # 2. Click "Add Integration"
 # 3. Search for "Gemini AI TTS/STT"
 # 4. Enter your Google AI API key
-# 5. Configure options as desired
+# 5. (Optional) Configure Google Cloud STT credentials
+# 6. Configure options as desired
+
+# For STT setup:
+# 1. Create Google Cloud project
+# 2. Enable Speech-to-Text API
+# 3. Create service account with STT permissions
+# 4. Download JSON credentials
+# 5. Add project ID and credentials to integration config
 
 # Example automations using the integration:
 
@@ -157,3 +165,123 @@ automation:
         data:
           entity_id: input_text.gemini_conversation_input
           value: ""
+
+  # STT Voice Command Processing
+  - id: process_voice_commands
+    alias: "Process Voice Commands with STT"
+    trigger:
+      - platform: event
+        event_type: stt_result
+        event_data:
+          entity_id: stt.gemini_ai_stt
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.text | length > 0 }}"
+    action:
+      - variables:
+          voice_text: "{{ trigger.event.data.text | lower }}"
+      - choose:
+          # Lighting controls
+          - conditions:
+              - condition: template
+                value_template: "{{ 'lights on' in voice_text or 'turn on lights' in voice_text }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.all_lights
+              - service: gemini_ai_tts.speak_with_style
+                data:
+                  message: "Lights turned on"
+                  entity_id: media_player.living_room
+                  voice: "Puck"
+                  
+          # Weather query
+          - conditions:
+              - condition: template
+                value_template: "{{ 'weather' in voice_text }}"
+            sequence:
+              - service: conversation.process
+                data:
+                  text: "{{ trigger.event.data.text }}"
+                  agent_id: conversation.gemini_ai_conversation
+                response_variable: weather_response
+              - service: gemini_ai_tts.speak_with_style
+                data:
+                  message: "{{ weather_response.response.speech.plain.speech }}"
+                  entity_id: media_player.living_room
+                  voice: "Charon"
+                  style: "professional"
+                  
+          # Music control
+          - conditions:
+              - condition: template
+                value_template: "{{ 'play music' in voice_text or 'start music' in voice_text }}"
+            sequence:
+              - service: media_player.play_media
+                target:
+                  entity_id: media_player.living_room
+                data:
+                  media_content_type: "playlist"
+                  media_content_id: "favorites"
+              - service: gemini_ai_tts.speak_with_style
+                data:
+                  message: "Playing your favorite music"
+                  entity_id: media_player.living_room
+                  voice: "Aoede"
+                  style: "cheerful"
+        default:
+          # Send to conversation agent for general queries
+          - service: conversation.process
+            data:
+              text: "{{ trigger.event.data.text }}"
+              agent_id: conversation.gemini_ai_conversation
+            response_variable: general_response
+          - service: gemini_ai_tts.speak_with_style
+            data:
+              message: "{{ general_response.response.speech.plain.speech }}"
+              entity_id: media_player.living_room
+              voice: "Puck"
+
+# Multi-language voice command support
+automation:
+  - id: multilingual_voice_commands
+    alias: "Multi-language Voice Commands"
+    trigger:
+      - platform: event
+        event_type: stt_result
+    condition:
+      - condition: template
+        value_template: "{{ trigger.event.data.text | length > 0 }}"
+    action:
+      - variables:
+          voice_text: "{{ trigger.event.data.text | lower }}"
+      - choose:
+          # Spanish commands
+          - conditions:
+              - condition: template
+                value_template: "{{ 'luces' in voice_text or 'encender' in voice_text }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.all_lights
+              - service: gemini_ai_tts.speak_with_style
+                data:
+                  message: "Luces encendidas"
+                  entity_id: media_player.living_room
+                  voice: "Puck"
+                  language: "es-US"
+                  
+          # French commands  
+          - conditions:
+              - condition: template
+                value_template: "{{ 'lumières' in voice_text or 'allumer' in voice_text }}"
+            sequence:
+              - service: light.turn_on
+                target:
+                  entity_id: light.all_lights
+              - service: gemini_ai_tts.speak_with_style
+                data:
+                  message: "Lumières allumées"
+                  entity_id: media_player.living_room
+                  voice: "Aoede"
+                  language: "fr-FR"

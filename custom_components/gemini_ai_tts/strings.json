@@ -7,7 +7,9 @@
         "description": "Enter your Google AI API key to connect to Gemini services.",
         "data": {
           "api_key": "API Key",
-          "name": "Integration Name"
+          "name": "Integration Name",
+          "stt_project_id": "Google Cloud Project ID (for STT)",
+          "stt_credentials_json": "Google Cloud Credentials JSON (for STT)"
         }
       }
     },
@@ -33,7 +35,9 @@
           "pace": "Speaking Pace",
           "language": "Language",
           "streaming": "Enable Streaming",
-          "multi_speaker": "Enable Multi-Speaker"
+          "multi_speaker": "Enable Multi-Speaker",
+          "stt_language": "STT Language",
+          "stt_model": "STT Model"
         }
       }
     }
