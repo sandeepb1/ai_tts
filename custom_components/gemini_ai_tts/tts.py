@@ -7,7 +7,8 @@ import logging
 import wave
 from typing import Any
 
-from google import genai
+import google.generativeai as genai
+from google import genai as genai_client
 from google.genai import types
 from homeassistant.components.tts import ATTR_VOICE, CONF_LANG, TextToSpeechEntity
 from homeassistant.config_entries import ConfigEntry
@@ -65,7 +66,9 @@ class GeminiTTSEntity(TextToSpeechEntity):
         self._hass = hass
         self._api_key = api_key
         self._options = options
-        self._client = genai.Client(api_key=api_key)
+        
+        # Initialize the Gemini client for TTS
+        self._client = genai_client.Client(api_key=api_key)
         
         self._attr_name = "Gemini AI TTS"
         self._attr_unique_id = f"{DOMAIN}_tts"
@@ -191,58 +194,68 @@ class GeminiTTSEntity(TextToSpeechEntity):
         self, message: str, voice: str, options: dict[str, Any]
     ) -> bytes:
         """Generate speech using Gemini TTS API."""
-        model = self._options.get("tts_model", DEFAULT_MODEL_TTS)
-        
         # Validate voice
         if voice not in VOICES:
             _LOGGER.warning("Invalid voice '%s', using default '%s'", voice, DEFAULT_VOICE)
             voice = DEFAULT_VOICE
             
         try:
-            config = types.GenerateContentConfig(
-                response_modalities=["AUDIO"],
-                speech_config=types.SpeechConfig(
-                    voice_config=types.VoiceConfig(
-                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                            voice_name=voice
-                        )
-                    )
-                ),
-            )
+            # Get model from options or use default
+            model = self._options.get("tts_model", DEFAULT_MODEL_TTS)
             
-            # Generate audio using the Gemini API
+            # Generate speech using the real Gemini TTS API
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self._client.models.generate_content(
                     model=model,
                     contents=message,
-                    config=config,
+                    config=types.GenerateContentConfig(
+                        response_modalities=["AUDIO"],
+                        speech_config=types.SpeechConfig(
+                            voice_config=types.VoiceConfig(
+                                prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                                    voice_name=voice,
+                                )
+                            )
+                        ),
+                    )
                 ),
             )
             
-            # Extract audio data
-            audio_data = response.candidates[0].content.parts[0].inline_data.data
-            
-            # Convert to WAV format if needed
-            return self._ensure_wav_format(audio_data)
+            # Extract audio data from response
+            if response.candidates and response.candidates[0].content.parts:
+                audio_data = response.candidates[0].content.parts[0].inline_data.data
+                
+                # Convert to WAV format if needed
+                return self._ensure_wav_format(audio_data)
+            else:
+                raise Exception("No audio data received from Gemini TTS API")
             
         except Exception as err:
-            _LOGGER.error("Error calling Gemini TTS API: %s", err)
+            _LOGGER.error("Error generating speech with Gemini TTS: %s", err)
             raise
 
     def _ensure_wav_format(self, audio_data: bytes) -> bytes:
         """Ensure audio data is in WAV format."""
-        # Create a proper WAV file header
         try:
+            # The Gemini TTS API returns raw PCM data at 24kHz, 16-bit, mono
+            # We need to add a WAV header to make it a proper WAV file
+            
+            sample_rate = AUDIO_SAMPLE_RATE  # 24000 Hz as per Gemini docs
+            channels = AUDIO_CHANNELS        # 1 (mono)
+            sample_width = AUDIO_SAMPLE_WIDTH # 2 bytes (16-bit)
+            
+            # Create WAV file with proper header
             output = io.BytesIO()
             with wave.open(output, "wb") as wav_file:
-                wav_file.setnchannels(AUDIO_CHANNELS)
-                wav_file.setsampwidth(AUDIO_SAMPLE_WIDTH)
-                wav_file.setframerate(AUDIO_SAMPLE_RATE)
+                wav_file.setnchannels(channels)
+                wav_file.setsampwidth(sample_width)
+                wav_file.setframerate(sample_rate)
                 wav_file.writeframes(audio_data)
             
             return output.getvalue()
-        except Exception:
-            # If we can't create a proper WAV file, return the raw data
-            _LOGGER.warning("Could not create WAV header, returning raw audio data")
+            
+        except Exception as err:
+            _LOGGER.error("Error formatting audio as WAV: %s", err)
+            # Return original data if formatting fails
             return audio_data

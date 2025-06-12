@@ -1,6 +1,10 @@
 # Gemini AI TTS/STT Integration - Usage Examples
 
-## Basic TTS Usage
+> **✨ New in v1.0**: Native Gemini TTS is now fully functional using the official Gemini 2.5 TTS API! Enjoy real speech synthesis with 30+ premium voices and advanced style control.
+
+## Text-to-Speech (TTS)
+
+### Basic TTS Usage with Native Gemini TTS
 
 ### Simple Text-to-Speech
 ```yaml

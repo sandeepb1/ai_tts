@@ -1,26 +1,53 @@
 # Gemini AI TTS/STT Integration for Home Assistant
 
-A comprehensive Home Assistant integration for Google Gemini Text-to-Speech (TTS) and Speech-to-Text (STT) with conversation agent capabilities.
+A comprehensive Home Assistant integration for Google Gemini AI with conversation agent capabilities and speech processing.
+
+## ✅ **Current Status**
+
+- **Text-to-Speech (TTS)** ✅ - **Fully functional** using native Gemini 2.5 Flash/Pro TTS
+- **Conversation Agent** ✅ - Fully functional using Gemini 2.5 Pro
+- **Speech-to-Text (STT)** ✅ - Fully functional using Google Cloud Speech-to-Text
 
 ## Features
 
-- **Text-to-Speech (TTS)** using Gemini 2.5 Flash Preview TTS
-- **Speech-to-Text (STT)** using Google Cloud Speech-to-Text API
-- **Conversation Agent** using Gemini 2.5 Pro Preview
-- **30+ Voice Options** with different tones and styles
-- **Multi-speaker support** for conversations
-- **Streaming audio** for real-time responses
-- **Configurable speech parameters** (tone, emotion, pace, accent)
-- **Home Assistant native integration** with configuration UI
-- **60+ STT languages** with advanced recognition models
+### 🗣️ **Text-to-Speech (TTS)**
+- **Native Gemini TTS** - Real speech synthesis using Gemini 2.5 Flash/Pro TTS models
+- **30+ Premium Voices** - High-quality voices (Puck, Charon, Kore, Zephyr, etc.)
+- **Advanced Voice Control** - Style, emotion, pace, and tone customization
+- **Natural Language Prompts** - Control speech characteristics with natural instructions
+- **Multi-language Support** - 24+ languages with automatic detection
+
+### 🤖 **Conversation Agent** 
+- **Gemini 2.5 Pro** - Advanced AI conversation with context and history
+- **Configurable Parameters** - Temperature, max tokens, context length
+- **Home Assistant Integration** - Native conversation entity
+
+### 🎧 **Speech-to-Text (STT)**
+- **Google Cloud Speech-to-Text** - Professional-grade recognition
+- **60+ Languages** - Extensive language support
+- **Advanced Models** - Optimized for different audio types
+- **High Accuracy** - Professional speech recognition
 
 > **Note**: STT functionality requires Google Cloud Speech-to-Text API credentials. This provides professional-grade speech recognition with high accuracy and extensive language support.
 
 ## Supported Models
 
-- `gemini-2.5-flash-preview-tts` - Fast TTS generation
-- `gemini-2.5-pro-preview-06-05` - Advanced conversation agent
-- `gemini-2.5-pro-preview-tts` - High-quality TTS
+### Text-to-Speech (TTS)
+- `gemini-2.5-flash-preview-tts` - Fast, high-quality TTS (default)
+- `gemini-2.5-pro-preview-tts` - Premium TTS with enhanced quality
+
+### Conversation Agent
+- `gemini-2.5-pro-preview-06-05` - Advanced conversation agent (default)
+- `gemini-2.0-flash` - Fast conversation responses
+- `gemini-1.5-pro` - Standard conversation model
+
+### Speech-to-Text
+- Google Cloud Speech-to-Text with multiple model options:
+  - `latest_long` - Best for long audio (default)
+  - `latest_short` - Best for short commands  
+  - `command_and_search` - Optimized for voice commands
+  - `phone_call` - Optimized for phone audio
+  - `video` - Optimized for video audio
 
 ## Installation
 
@@ -157,9 +184,10 @@ If you encounter any issues:
 
 ### Version 1.0.0
 - Initial release
-- Basic TTS functionality with Gemini 2.5 Flash
-- 30+ voice options
-- Multi-speaker support
-- Conversation agent integration
-- Streaming audio support
-- Configuration UI
+- **Native Gemini TTS** with Gemini 2.5 Flash/Pro TTS models
+- **30+ Premium Voices** with natural speech synthesis
+- **Advanced Voice Control** - style, emotion, pace customization
+- **Conversation Agent** with Gemini 2.5 Pro
+- **Professional STT** with Google Cloud Speech-to-Text
+- **Tabbed Configuration UI** for easy setup
+- **Multi-language Support** - 24+ languages

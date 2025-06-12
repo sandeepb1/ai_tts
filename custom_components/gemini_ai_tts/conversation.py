@@ -5,7 +5,7 @@ import asyncio
 import logging
 from typing import Any
 
-from google import genai
+import google.generativeai as genai
 from homeassistant.components.conversation import (
     ATTR_AGENT_ID,
     ConversationEntity,
@@ -15,6 +15,7 @@ from homeassistant.components.conversation import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers import intent
 from homeassistant.util import ulid
 
 from .const import (
@@ -54,7 +55,13 @@ class GeminiConversationEntity(ConversationEntity):
         self._hass = hass
         self._api_key = api_key
         self._options = options
-        self._client = genai.Client(api_key=api_key)
+        
+        # Configure the client
+        genai.configure(api_key=api_key)
+        
+        # Get model from options or use default
+        model_name = options.get("conversation_model", DEFAULT_MODEL_CONVERSATION)
+        self._model = genai.GenerativeModel(model_name)
         
         self._attr_name = "Gemini AI Conversation"
         self._attr_unique_id = f"{DOMAIN}_conversation"
@@ -135,7 +142,6 @@ class GeminiConversationEntity(ConversationEntity):
     async def _generate_response(self, user_message: str) -> str:
         """Generate a response using Gemini AI."""
         try:
-            model = self._options.get("conversation_model", DEFAULT_MODEL_CONVERSATION)
             max_tokens = self._options.get("conversation_max_tokens", 1000)
             temperature = self._options.get("conversation_temperature", 0.7)
             context_length = self._options.get("conversation_context_length", 10)
@@ -173,17 +179,17 @@ class GeminiConversationEntity(ConversationEntity):
                 # Truncate older conversation history
                 prompt = system_message + "\n" + f"User: {user_message}"
             
-            # Create generation config if supported
-            generation_config = {
-                "max_output_tokens": max_tokens,
-                "temperature": temperature,
-            }
+            # Create generation config
+            generation_config = genai.types.GenerationConfig(
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
             
+            # Generate response using the model
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: self._client.models.generate_content(
-                    model=model,
-                    contents=prompt,
+                lambda: self._model.generate_content(
+                    prompt,
                     generation_config=generation_config,
                 ),
             )
@@ -197,7 +203,3 @@ class GeminiConversationEntity(ConversationEntity):
     def clear_conversation_history(self) -> None:
         """Clear the conversation history."""
         self._conversation_history.clear()
-
-
-# Import required for intent response
-from homeassistant.helpers import intent
