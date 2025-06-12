@@ -12,7 +12,6 @@ CONF_EMOTION = "emotion"
 CONF_PACE = "pace"
 CONF_LANGUAGE = "language"
 CONF_STREAMING = "streaming"
-CONF_MULTI_SPEAKER = "multi_speaker"
 CONF_STT_PROJECT_ID = "stt_project_id"
 CONF_STT_CREDENTIALS_JSON = "stt_credentials_json"
 CONF_STT_LANGUAGE = "stt_language"
@@ -28,12 +27,20 @@ DEFAULT_STREAMING = True
 DEFAULT_STT_LANGUAGE = "en-US"
 DEFAULT_STT_MODEL = "latest_long"
 
-# Available models
-MODELS = {
+# Available models - separated by category
+CONVERSATION_MODELS = {
+    "gemini-2.5-pro-preview-06-05": "Gemini 2.5 Pro (Conversation)",
+    "gemini-2.0-flash": "Gemini 2.0 Flash (Fast Conversation)",
+    "gemini-1.5-pro": "Gemini 1.5 Pro (Conversation)",
+}
+
+TTS_MODELS = {
     "gemini-2.5-flash-preview-tts": "Gemini 2.5 Flash TTS (Fast)",
     "gemini-2.5-pro-preview-tts": "Gemini 2.5 Pro TTS (High Quality)",
-    "gemini-2.5-pro-preview-06-05": "Gemini 2.5 Pro (Conversation)",
 }
+
+# Combined models for backward compatibility
+MODELS = {**CONVERSATION_MODELS, **TTS_MODELS}
 
 # Available voices with descriptions
 VOICES = {

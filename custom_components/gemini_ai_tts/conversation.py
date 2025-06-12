@@ -135,7 +135,10 @@ class GeminiConversationEntity(ConversationEntity):
     async def _generate_response(self, user_message: str) -> str:
         """Generate a response using Gemini AI."""
         try:
-            model = DEFAULT_MODEL_CONVERSATION
+            model = self._options.get("conversation_model", DEFAULT_MODEL_CONVERSATION)
+            max_tokens = self._options.get("conversation_max_tokens", 1000)
+            temperature = self._options.get("conversation_temperature", 0.7)
+            context_length = self._options.get("conversation_context_length", 10)
             
             # Build conversation context
             messages = []
@@ -151,8 +154,9 @@ class GeminiConversationEntity(ConversationEntity):
             
             messages.append(system_message)
             
-            # Add conversation history
-            for msg in self._conversation_history[-10:]:  # Last 10 exchanges
+            # Add conversation history (limited by context_length)
+            history_limit = context_length * 2  # Each exchange has user + assistant
+            for msg in self._conversation_history[-history_limit:]:
                 if msg["role"] == "user":
                     messages.append(f"User: {msg['content']}")
                 else:
@@ -169,11 +173,18 @@ class GeminiConversationEntity(ConversationEntity):
                 # Truncate older conversation history
                 prompt = system_message + "\n" + f"User: {user_message}"
             
+            # Create generation config if supported
+            generation_config = {
+                "max_output_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
                 lambda: self._client.models.generate_content(
                     model=model,
                     contents=prompt,
+                    generation_config=generation_config,
                 ),
             )
             

@@ -191,7 +191,7 @@ class GeminiTTSEntity(TextToSpeechEntity):
         self, message: str, voice: str, options: dict[str, Any]
     ) -> bytes:
         """Generate speech using Gemini TTS API."""
-        model = self._options.get(CONF_MODEL, DEFAULT_MODEL_TTS)
+        model = self._options.get("tts_model", DEFAULT_MODEL_TTS)
         
         # Validate voice
         if voice not in VOICES:

@@ -22,12 +22,12 @@ from .const import (
     CONF_PACE,
     CONF_LANGUAGE,
     CONF_STREAMING,
-    CONF_MULTI_SPEAKER,
     CONF_STT_PROJECT_ID,
     CONF_STT_CREDENTIALS_JSON,
     CONF_STT_LANGUAGE,
     CONF_STT_MODEL,
     DEFAULT_MODEL_TTS,
+    DEFAULT_MODEL_CONVERSATION,
     DEFAULT_VOICE,
     DEFAULT_STYLE,
     DEFAULT_LANGUAGE,
@@ -128,20 +128,180 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Manage the options."""
+        """Manage the options - show menu."""
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            if user_input["next_step"] == "conversation":
+                return await self.async_step_conversation()
+            elif user_input["next_step"] == "tts":
+                return await self.async_step_tts()
+            elif user_input["next_step"] == "stt":
+                return await self.async_step_stt()
+            else:
+                return await self.async_step_global()
 
-        options_schema = vol.Schema(
+        menu_schema = vol.Schema(
+            {
+                vol.Required("next_step", default="global"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value="global", label="Global Settings"),
+                            selector.SelectOptionDict(value="conversation", label="Conversation Agent"),
+                            selector.SelectOptionDict(value="tts", label="Text-to-Speech"),
+                            selector.SelectOptionDict(value="stt", label="Speech-to-Text"),
+                        ]
+                    )
+                ),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=menu_schema,
+            description_placeholders={
+                "title": "Configure Gemini AI TTS/STT",
+                "description": "Choose which component to configure"
+            },
+        )
+
+    async def async_step_global(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle global settings."""
+        if user_input is not None:
+            # Merge with existing options
+            new_options = {**self.config_entry.options}
+            new_options.update(user_input)
+            return self.async_create_entry(title="", data=new_options)
+
+        global_schema = vol.Schema(
             {
                 vol.Optional(
-                    CONF_MODEL,
-                    default=self.config_entry.options.get(CONF_MODEL, DEFAULT_MODEL_TTS),
+                    CONF_LANGUAGE,
+                    default=self.config_entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
                             selector.SelectOptionDict(value=k, label=v) 
-                            for k, v in MODELS.items()
+                            for k, v in SUPPORTED_LANGUAGES.items()
+                        ]
+                    )
+                ),
+                vol.Optional(
+                    CONF_STREAMING,
+                    default=self.config_entry.options.get(CONF_STREAMING, DEFAULT_STREAMING),
+                ): selector.BooleanSelector(),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="global",
+            data_schema=global_schema,
+            description_placeholders={
+                "title": "Global Settings",
+                "description": "Configure global settings that apply to all components"
+            },
+        )
+
+    async def async_step_conversation(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle conversation agent configuration."""
+        if user_input is not None:
+            # Merge with existing options
+            new_options = {**self.config_entry.options}
+            new_options.update(user_input)
+            return self.async_create_entry(title="", data=new_options)
+
+        # Filter models for conversation
+        conversation_models = {
+            k: v for k, v in MODELS.items() 
+            if "conversation" in v.lower() or "pro" in v.lower()
+        }
+
+        conversation_schema = vol.Schema(
+            {
+                vol.Optional(
+                    "conversation_model",
+                    default=self.config_entry.options.get("conversation_model", DEFAULT_MODEL_CONVERSATION),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=k, label=v) 
+                            for k, v in conversation_models.items()
+                        ]
+                    )
+                ),
+                vol.Optional(
+                    "conversation_temperature",
+                    default=self.config_entry.options.get("conversation_temperature", 0.7),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0.0,
+                        max=2.0,
+                        step=0.1,
+                        mode=selector.NumberSelectorMode.SLIDER,
+                    )
+                ),
+                vol.Optional(
+                    "conversation_max_tokens",
+                    default=self.config_entry.options.get("conversation_max_tokens", 1000),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=100,
+                        max=4000,
+                        step=100,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
+                ),
+                vol.Optional(
+                    "conversation_context_length",
+                    default=self.config_entry.options.get("conversation_context_length", 10),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=1,
+                        max=50,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
+                ),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="conversation",
+            data_schema=conversation_schema,
+            description_placeholders={
+                "title": "Conversation Agent Settings",
+                "description": "Configure the AI conversation agent powered by Gemini Pro"
+            },
+        )
+
+    async def async_step_tts(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle TTS configuration."""
+        if user_input is not None:
+            # Merge with existing options
+            new_options = {**self.config_entry.options}
+            new_options.update(user_input)
+            return self.async_create_entry(title="", data=new_options)
+
+        # Filter models for TTS
+        tts_models = {
+            k: v for k, v in MODELS.items() 
+            if "tts" in v.lower()
+        }
+
+        tts_schema = vol.Schema(
+            {
+                vol.Optional(
+                    "tts_model",
+                    default=self.config_entry.options.get("tts_model", DEFAULT_MODEL_TTS),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=k, label=v) 
+                            for k, v in tts_models.items()
                         ]
                     )
                 ),
@@ -175,24 +335,40 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     selector.SelectSelectorConfig(options=PACE_OPTIONS)
                 ),
                 vol.Optional(
-                    CONF_LANGUAGE,
-                    default=self.config_entry.options.get(CONF_LANGUAGE, DEFAULT_LANGUAGE),
+                    "tts_quality",
+                    default=self.config_entry.options.get("tts_quality", "standard"),
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
-                            selector.SelectOptionDict(value=k, label=v) 
-                            for k, v in SUPPORTED_LANGUAGES.items()
+                            selector.SelectOptionDict(value="standard", label="Standard Quality"),
+                            selector.SelectOptionDict(value="high", label="High Quality"),
                         ]
                     )
                 ),
-                vol.Optional(
-                    CONF_STREAMING,
-                    default=self.config_entry.options.get(CONF_STREAMING, DEFAULT_STREAMING),
-                ): selector.BooleanSelector(),
-                vol.Optional(
-                    CONF_MULTI_SPEAKER,
-                    default=self.config_entry.options.get(CONF_MULTI_SPEAKER, False),
-                ): selector.BooleanSelector(),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="tts",
+            data_schema=tts_schema,
+            description_placeholders={
+                "title": "Text-to-Speech Settings",
+                "description": "Configure voice synthesis options and speech characteristics"
+            },
+        )
+
+    async def async_step_stt(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Handle STT configuration."""
+        if user_input is not None:
+            # Merge with existing options
+            new_options = {**self.config_entry.options}
+            new_options.update(user_input)
+            return self.async_create_entry(title="", data=new_options)
+
+        stt_schema = vol.Schema(
+            {
                 vol.Optional(
                     CONF_STT_LANGUAGE,
                     default=self.config_entry.options.get(CONF_STT_LANGUAGE, DEFAULT_STT_LANGUAGE),
@@ -215,12 +391,47 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                         ]
                     )
                 ),
+                vol.Optional(
+                    "stt_enhanced_models",
+                    default=self.config_entry.options.get("stt_enhanced_models", True),
+                ): selector.BooleanSelector(),
+                vol.Optional(
+                    "stt_profanity_filter",
+                    default=self.config_entry.options.get("stt_profanity_filter", False),
+                ): selector.BooleanSelector(),
+                vol.Optional(
+                    "stt_enable_word_confidence",
+                    default=self.config_entry.options.get("stt_enable_word_confidence", False),
+                ): selector.BooleanSelector(),
+                vol.Optional(
+                    "stt_enable_automatic_punctuation",
+                    default=self.config_entry.options.get("stt_enable_automatic_punctuation", True),
+                ): selector.BooleanSelector(),
+                vol.Optional(
+                    "stt_sample_rate",
+                    default=self.config_entry.options.get("stt_sample_rate", "16000"),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value="8000", label="8 kHz"),
+                            selector.SelectOptionDict(value="16000", label="16 kHz (Recommended)"),
+                            selector.SelectOptionDict(value="22050", label="22.05 kHz"),
+                            selector.SelectOptionDict(value="24000", label="24 kHz"),
+                            selector.SelectOptionDict(value="44100", label="44.1 kHz"),
+                            selector.SelectOptionDict(value="48000", label="48 kHz"),
+                        ]
+                    )
+                ),
             }
         )
 
         return self.async_show_form(
-            step_id="init",
-            data_schema=options_schema,
+            step_id="stt",
+            data_schema=stt_schema,
+            description_placeholders={
+                "title": "Speech-to-Text Settings",
+                "description": "Configure speech recognition options and language settings"
+            },
         )
 
 

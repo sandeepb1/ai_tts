@@ -25,19 +25,53 @@
   "options": {
     "step": {
       "init": {
-        "title": "Configure Gemini AI TTS/STT Options",
-        "description": "Customize your TTS and conversation settings.",
+        "title": "Configure Gemini AI TTS/STT",
+        "description": "Choose which component to configure",
         "data": {
-          "model": "Model",
+          "next_step": "Configuration Section"
+        }
+      },
+      "global": {
+        "title": "Global Settings",
+        "description": "Configure global settings that apply to all components",
+        "data": {
+          "language": "Default Language",
+          "streaming": "Enable Streaming"
+        }
+      },
+      "conversation": {
+        "title": "Conversation Agent Settings",
+        "description": "Configure the AI conversation agent powered by Gemini Pro",
+        "data": {
+          "conversation_model": "Conversation Model",
+          "conversation_temperature": "Response Creativity (Temperature)",
+          "conversation_max_tokens": "Maximum Response Length",
+          "conversation_context_length": "Conversation Memory (exchanges)"
+        }
+      },
+      "tts": {
+        "title": "Text-to-Speech Settings",
+        "description": "Configure voice synthesis options and speech characteristics",
+        "data": {
+          "tts_model": "TTS Model",
           "voice": "Voice",
-          "style": "Speech Style", 
+          "style": "Speech Style",
           "emotion": "Emotion",
           "pace": "Speaking Pace",
-          "language": "Language",
-          "streaming": "Enable Streaming",
-          "multi_speaker": "Enable Multi-Speaker",
+          "tts_quality": "Audio Quality"
+        }
+      },
+      "stt": {
+        "title": "Speech-to-Text Settings",
+        "description": "Configure speech recognition options and language settings",
+        "data": {
           "stt_language": "STT Language",
-          "stt_model": "STT Model"
+          "stt_model": "STT Model",
+          "stt_enhanced_models": "Use Enhanced Models",
+          "stt_profanity_filter": "Enable Profanity Filter",
+          "stt_enable_word_confidence": "Enable Word Confidence",
+          "stt_enable_automatic_punctuation": "Enable Automatic Punctuation",
+          "stt_sample_rate": "Audio Sample Rate"
         }
       }
     }
