@@ -1,0 +1,20 @@
+{
+  "domain": "gemini_ai_tts",
+  "name": "Gemini AI TTS/STT",
+  "codeowners": ["@your-github-username"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/your-username/gemini-ai-tts",
+  "homeassistant": "2024.1.0",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/your-username/gemini-ai-tts/issues",
+  "loggers": ["custom_components.gemini_ai_tts"],
+  "requirements": [
+    "google-genai>=0.7.0",
+    "aiohttp>=3.8.0",
+    "pydub>=0.25.1"
+  ],
+  "ssdp": [],
+  "version": "1.0.0",
+  "zeroconf": []
+}

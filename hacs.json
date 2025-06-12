@@ -1,0 +1,10 @@
+{
+  "name": "Gemini AI TTS/STT",
+  "content_in_root": false,
+  "filename": "gemini_ai_tts.zip",
+  "country": [],
+  "render_readme": true,
+  "domains": ["tts", "stt", "conversation"],
+  "iot_class": "cloud_polling",
+  "homeassistant": "2024.1.0"
+}

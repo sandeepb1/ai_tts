@@ -1,0 +1,41 @@
+{
+  "title": "Gemini AI TTS/STT",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Gemini AI TTS/STT",
+        "description": "Enter your Google AI API key to connect to Gemini services.",
+        "data": {
+          "api_key": "API Key",
+          "name": "Integration Name"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to Gemini API. Please check your internet connection.",
+      "invalid_api_key": "Invalid API key. Please check your API key and try again.",
+      "unknown": "Unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "Integration is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Gemini AI TTS/STT Options",
+        "description": "Customize your TTS and conversation settings.",
+        "data": {
+          "model": "Model",
+          "voice": "Voice",
+          "style": "Speech Style", 
+          "emotion": "Emotion",
+          "pace": "Speaking Pace",
+          "language": "Language",
+          "streaming": "Enable Streaming",
+          "multi_speaker": "Enable Multi-Speaker"
+        }
+      }
+    }
+  }
+}

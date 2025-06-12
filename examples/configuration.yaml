@@ -1,0 +1,159 @@
+# Example Home Assistant configuration for Gemini AI TTS/STT
+
+# After installing the integration via HACS:
+# 1. Go to Configuration -> Integrations
+# 2. Click "Add Integration"
+# 3. Search for "Gemini AI TTS/STT"
+# 4. Enter your Google AI API key
+# 5. Configure options as desired
+
+# Example automations using the integration:
+
+automation:
+  # Welcome message with emotional TTS
+  - id: welcome_home_gemini
+    alias: "Welcome Home with Gemini TTS"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.front_door
+        to: "on"
+    action:
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: "Welcome home! I hope you had a wonderful day."
+          entity_id: media_player.living_room_speaker
+          voice: "Puck"
+          style: "cheerful"
+          emotion: "happy"
+          pace: "normal"
+
+  # Weather announcement with professional tone
+  - id: morning_weather_gemini
+    alias: "Morning Weather with Gemini"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: >
+            Good morning! Today's weather is {{ states('weather.home') }} 
+            with a temperature of {{ state_attr('weather.home', 'temperature') }} degrees.
+            Have a great day!
+          entity_id: media_player.bedroom_speaker
+          voice: "Charon"
+          style: "professional"
+          emotion: "neutral"
+
+  # Bedtime story with calm voice
+  - id: bedtime_story_gemini
+    alias: "Bedtime Story with Gemini"
+    trigger:
+      - platform: time
+        at: "20:00:00"
+    condition:
+      - condition: state
+        entity_id: input_boolean.bedtime_story_enabled
+        state: "on"
+    action:
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: >
+            Once upon a time, in a magical smart home, all the devices 
+            worked together to keep their family safe and comfortable. 
+            The lights dimmed gently, the temperature was just right, 
+            and everyone lived happily ever after. Good night!
+          entity_id: media_player.kids_room_speaker
+          voice: "Leda"
+          style: "calm"
+          emotion: "calm"
+          pace: "slow"
+
+  # Emergency alert with urgent tone
+  - id: security_alert_gemini
+    alias: "Security Alert with Gemini"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.security_system
+        to: "on"
+    action:
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: "Security alert! Motion detected in the restricted area."
+          entity_id: media_player.whole_house
+          voice: "Kore"
+          style: "dramatic"
+          emotion: "serious"
+          pace: "fast"
+
+  # Multi-speaker conversation example
+  - id: multi_speaker_demo
+    alias: "Multi-Speaker Demo"
+    trigger:
+      - platform: event
+        event_type: demo_conversation
+    action:
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: |
+            Host: Welcome to our smart home podcast!
+            Guest: Thanks for having me. This Gemini integration is amazing!
+            Host: Tell us about your favorite features.
+            Guest: I love the natural-sounding voices and emotion controls.
+          entity_id: media_player.living_room_speaker
+          speakers:
+            - "Host"
+            - "Guest"
+          voice: "Puck"
+          style: "friendly"
+
+# Example script for voice testing
+script:
+  test_all_voices:
+    alias: "Test All Gemini Voices"
+    sequence:
+      - repeat:
+          count: 5
+          sequence:
+            - service: gemini_ai_tts.speak_with_style
+              data:
+                message: >
+                  This is voice {{ repeat.index }}: 
+                  {{ ['Puck', 'Kore', 'Charon', 'Leda', 'Enceladus'][repeat.index - 1] }}.
+                  Each voice has its own unique character and style.
+                entity_id: media_player.living_room_speaker
+                voice: "{{ ['Puck', 'Kore', 'Charon', 'Leda', 'Enceladus'][repeat.index - 1] }}"
+                style: "natural"
+            - delay: "00:00:03"
+
+# Example conversation with Gemini AI
+input_text:
+  gemini_conversation_input:
+    name: "Ask Gemini AI"
+    max: 255
+
+automation:
+  - id: process_gemini_conversation
+    alias: "Process Gemini Conversation"
+    trigger:
+      - platform: state
+        entity_id: input_text.gemini_conversation_input
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state != '' }}"
+    action:
+      - service: conversation.process
+        data:
+          text: "{{ states('input_text.gemini_conversation_input') }}"
+          agent_id: "conversation.gemini_ai_conversation"
+        response_variable: gemini_response
+      - service: gemini_ai_tts.speak_with_style
+        data:
+          message: "{{ gemini_response.response.speech.plain.speech }}"
+          entity_id: media_player.living_room_speaker
+          voice: "Puck"
+          style: "conversational"
+      - service: input_text.set_value
+        data:
+          entity_id: input_text.gemini_conversation_input
+          value: ""

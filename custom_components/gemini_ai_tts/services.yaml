@@ -1,0 +1,143 @@
+speak_with_style:
+  name: Speak with Style
+  description: Speak text using Gemini TTS with advanced style options
+  fields:
+    message:
+      name: Message
+      description: Text to speak
+      required: true
+      selector:
+        text:
+          multiline: true
+    entity_id:
+      name: Media Player
+      description: Media player entity to play audio on
+      required: true
+      selector:
+        entity:
+          domain: media_player
+    voice:
+      name: Voice
+      description: Voice to use for speech
+      selector:
+        select:
+          options:
+            - label: "Zephyr (Bright)"
+              value: "Zephyr"
+            - label: "Puck (Upbeat)"
+              value: "Puck"
+            - label: "Charon (Informative)"
+              value: "Charon"
+            - label: "Kore (Firm)"
+              value: "Kore"
+            - label: "Fenrir (Excitable)"
+              value: "Fenrir"
+            - label: "Leda (Youthful)"
+              value: "Leda"
+            - label: "Orus (Firm)"
+              value: "Orus"
+            - label: "Aoede (Breezy)"
+              value: "Aoede"
+            - label: "Callirrhoe (Easy-going)"
+              value: "Callirrhoe"
+            - label: "Autonoe (Bright)"
+              value: "Autonoe"
+            - label: "Enceladus (Breathy)"
+              value: "Enceladus"
+            - label: "Iapetus (Clear)"
+              value: "Iapetus"
+            - label: "Umbriel (Easy-going)"
+              value: "Umbriel"
+            - label: "Algieba (Smooth)"
+              value: "Algieba"
+            - label: "Despina (Smooth)"
+              value: "Despina"
+    style:
+      name: Speech Style
+      description: Style of speech delivery
+      selector:
+        select:
+          options:
+            - "natural"
+            - "cheerful"
+            - "excited"
+            - "calm"
+            - "professional"
+            - "friendly"
+            - "mysterious"
+            - "dramatic"
+            - "whisper"
+            - "confident"
+    emotion:
+      name: Emotion
+      description: Emotional tone to convey
+      selector:
+        select:
+          options:
+            - "neutral"
+            - "happy"
+            - "sad"
+            - "angry"
+            - "surprised"
+            - "disgusted"
+            - "fearful"
+            - "excited"
+            - "calm"
+            - "serious"
+    pace:
+      name: Speaking Pace
+      description: Speed of speech delivery
+      selector:
+        select:
+          options:
+            - "very_slow"
+            - "slow"
+            - "normal"
+            - "fast"
+            - "very_fast"
+    speakers:
+      name: Speakers
+      description: List of speaker names for multi-speaker conversations
+      selector:
+        object:
+
+clear_conversation:
+  name: Clear Conversation History
+  description: Clear conversation history for Gemini AI conversation agent
+  fields:
+    entity_id:
+      name: Conversation Entity
+      description: Specific conversation entity to clear (optional - clears all if not specified)
+      selector:
+        entity:
+          domain: conversation
+
+set_default_voice:
+  name: Set Default Voice
+  description: Set the default voice for Gemini TTS
+  fields:
+    voice:
+      name: Voice
+      description: Voice to set as default
+      required: true
+      selector:
+        select:
+          options:
+            - label: "Zephyr (Bright)"
+              value: "Zephyr"
+            - label: "Puck (Upbeat)"
+              value: "Puck"
+            - label: "Charon (Informative)"
+              value: "Charon"
+            - label: "Kore (Firm)"
+              value: "Kore"
+            - label: "Fenrir (Excitable)"
+              value: "Fenrir"
+            - label: "Leda (Youthful)"
+              value: "Leda"
+    entity_id:
+      name: TTS Entity
+      description: Specific TTS entity to update (optional - updates all if not specified)
+      selector:
+        entity:
+          domain: tts
